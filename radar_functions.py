@@ -121,12 +121,12 @@ def pixel_brightness(reflecter, shader, ix, iy, iz, ex, ey, ez,
                      sinalpha, cosalpha, sinbeta, cosbeta, dalphadbeta):
     """calculates pixel brightness"""
     x0 = reflecter.a * cosalpha * cosbeta + reflecter.d
-    y0 = reflecter.ecl_latitude * sinalpha * cosbeta
+    y0 = reflecter.b * sinalpha * cosbeta
     z0 = reflecter.c * sinbeta
 
-    sx = reflecter.ecl_latitude * reflecter.c * cosalpha * cosbeta ** 2 * dalphadbeta
+    sx = reflecter.b * reflecter.c * cosalpha * cosbeta ** 2 * dalphadbeta
     sy = reflecter.a * reflecter.c * sinalpha * cosbeta ** 2 * dalphadbeta
-    sz = reflecter.a * reflecter.ecl_latitude * sinbeta * cosbeta * dalphadbeta
+    sz = reflecter.a * reflecter.b * sinbeta * cosbeta * dalphadbeta
 
     s = (sx ** 2 + sy ** 2 + sz ** 2) ** 0.5
 
@@ -141,9 +141,9 @@ def pixel_brightness(reflecter, shader, ix, iy, iz, ex, ey, ez,
     if mu_e < 0:
         mu_e = 0
 
-    wiew_i = visible(x0 / shader.a, y0 / shader.ecl_latitude, z0 / shader.c, ix / shader.a, iy / shader.ecl_latitude, iz / shader.c,
+    wiew_i = visible(x0 / shader.a, y0 / shader.b, z0 / shader.c, ix / shader.a, iy / shader.b, iz / shader.c,
                      shader.d / shader.a)
-    wiew_e = visible(x0 / shader.a, y0 / shader.ecl_latitude, z0 / shader.c, ex / shader.a, ey / shader.ecl_latitude, ez / shader.c,
+    wiew_e = visible(x0 / shader.a, y0 / shader.b, z0 / shader.c, ex / shader.a, ey / shader.b, ez / shader.c,
                      shader.d / shader.a)
 
     return s * mu_i * mu_e * wiew_i * wiew_e
@@ -163,7 +163,7 @@ def theoretical_radar_image(primary, secondary, ex, ey, ez, P, N_radar_pixels, d
             cosalpha = math.cos(alpha)
 
             x0 = primary.a * cosalpha * cosbeta + primary.d
-            y0 = primary.ecl_latitude * sinalpha * cosbeta
+            y0 = primary.b * sinalpha * cosbeta
             z0 = primary.c * sinbeta
 
             Ny = int(0.5 + 0.5 * N_radar_pixels - (x0 * ex + y0 * ey + z0 * ez) / dr)
@@ -174,7 +174,7 @@ def theoretical_radar_image(primary, secondary, ex, ey, ez, P, N_radar_pixels, d
                 brightness_list[Ny][Nx] += additional_brightness
 
             x0 = secondary.a * cosalpha * cosbeta + secondary.d
-            y0 = secondary.ecl_latitude * sinalpha * cosbeta
+            y0 = secondary.b * sinalpha * cosbeta
             z0 = secondary.c * sinbeta
 
             Ny = int(0.5 + 0.5 * N_radar_pixels - (x0 * ex + y0 * ey + z0 * ez) / dr)
