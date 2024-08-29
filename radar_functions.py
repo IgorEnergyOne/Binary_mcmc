@@ -166,7 +166,7 @@ def theoretical_radar_image(primary, secondary, ex, ey, ez, P, N_radar_pixels, d
             y0 = primary.b * sinalpha * cosbeta
             z0 = primary.c * sinbeta
 
-            Ny = int(0.5 + 0.5 * N_radar_pixels - (x0 * ex + y0 * ey + z0 * ez) / dr)
+            Ny = int(0.5 + 0.5 * N_radar_pixels - (x0 * ex + y0 * ey + z0 * ez) / dr / 2)
             Nx = int(0.5 + 0.5 * N_radar_pixels + 2 * NU0 / C_MS / dnu * 2 * math.pi / P / 84600 * (x0 * ey - y0 * ex))
             additional_brightness = pixel_brightness(primary, secondary, ex, ey, ez, ex, ey, ez, sinalpha, cosalpha,
                                                      sinbeta, cosbeta, dalphadbeta)
@@ -177,7 +177,7 @@ def theoretical_radar_image(primary, secondary, ex, ey, ez, P, N_radar_pixels, d
             y0 = secondary.b * sinalpha * cosbeta
             z0 = secondary.c * sinbeta
 
-            Ny = int(0.5 + 0.5 * N_radar_pixels - (x0 * ex + y0 * ey + z0 * ez) / dr)
+            Ny = int(0.5 + 0.5 * N_radar_pixels - (x0 * ex + y0 * ey + z0 * ez) / dr / 2)
             Nx = int(0.5 + 0.5 * N_radar_pixels + 2 * NU0 / C_MS / dnu * 2 * math.pi / P / 84600 * (x0 * ey - y0 * ex))
             additional_brightness = pixel_brightness(secondary, primary, ex, ey, ez, ex, ey, ez, sinalpha, cosalpha,
                                                      sinbeta, cosbeta, dalphadbeta)
