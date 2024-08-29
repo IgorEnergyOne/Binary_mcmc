@@ -1,6 +1,5 @@
 import math
 import numpy as np
-import scipy
 import functions as func
 from data_structures import LightCurve, ObsData
 import radar_functions as rf
@@ -97,8 +96,8 @@ def ln_posterior_radar(params: tuple, radar_image_params: rf.RadarImageParameter
 
             # shift theoretical image
             theoretical_radar_brightness = np.array(theoretical_radar_brightness_list) - 0.1
-            x_center_theor, y_center_theor = scipy.ndimage.center_of_mass(theoretical_radar_brightness)
-            x_center_obs, y_center_obs = scipy.ndimage.center_of_mass(observed_radar_brightness - np.median(observed_radar_brightness))
+            x_center_theor, y_center_theor = func.center_of_mass(theoretical_radar_brightness)
+            x_center_obs, y_center_obs = func.center_of_mass(observed_radar_brightness - np.median(observed_radar_brightness))
             shift_x = x_center_obs - x_center_theor
             shift_y = y_center_obs - y_center_theor
             try:

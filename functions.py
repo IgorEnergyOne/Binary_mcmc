@@ -89,6 +89,19 @@ def get_object_orbit(name: str, epochs: iter, location: str = '@10', refplane='e
     return pd.DataFrame(pd.concat(data_all))
 
 
+def center_of_mass(image: np.ndarray) -> tuple:
+    """Compute the center of mass of an image"""
+    # Ensure the image is a numpy array
+    image = np.array(image)
+    # Compute the total mass
+    total_mass = np.sum(image)
+    # Compute the coordinates of the center of mass
+    x_indices, y_indices = np.meshgrid(np.arange(image.shape[1]), np.arange(image.shape[0]))
+    x_center_of_mass = np.sum(x_indices * image) / total_mass
+    y_center_of_mass = np.sum(y_indices * image) / total_mass
+    return (y_center_of_mass, x_center_of_mass)
+
+
 def estimate_density(a1, b1, c1, a2, b2, c2, rot_per) -> np.ndarray:
     """
     Estimates the density of a binary asteroid based on the ratio of ellipsis parameters
