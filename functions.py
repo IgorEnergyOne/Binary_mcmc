@@ -107,9 +107,9 @@ def estimate_density(a1, b1, c1, a2, b2, c2, rot_per) -> np.ndarray:
     Estimates the density of a binary asteroid based on the ratio of ellipsis parameters
     Args:
         a1, b1, c1, a2, b2, c2 (float) - semi-major axes of the two ellipsoid [any units]
-        rot_per (float) - rotational period of the binary [h]
+        rot_per (float) - rotational period of the binary [days]
     Returns:
-        density (float): Estimated density of the binary asteroid [g/cm^3].
+        density (float): Estimated density of the binary asteroid [kg/m^3].
     """
     G = 6.67408e-11
     density = 3 * np.pi * (a1 + a2) ** 3 / (G * (rot_per * 60 * 60 * 24) ** 2 * (a1 * b1 * c1 + a2 * b2 * c2))
@@ -465,7 +465,10 @@ def scattering_law(sun_vecs: np.ndarray,
     p2 = np.sum(earth_vecs * norm_vecs, axis=1)
     # return values where p1 and p2 are positive (and their product)
     # otherwise return 0
-    res = p1 * p2
+    # Lambert scattering law
+    #res = p1 * p2
+    # Lommel-Seeliger Law
+    res = 0.1 * p1 * p2 + 1 * p1 * p2 / (p1 + p2)
     res[(p1 < 0) | (p2 < 0)] = 0
     return res
 
