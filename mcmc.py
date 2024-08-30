@@ -63,10 +63,11 @@ def ln_posterior_radar(params: tuple, radar_image_params: rf.RadarImageParameter
     cosb = math.cos(ps.ecl_latitude)
     sinb = math.sin(ps.ecl_latitude)
     # distance between the components of the binary
-    distance = (ps.a1 + ps.a2) * ps.a2 * ps.b2 * ps.c2 / (ps.a1 * ps.b1 * ps.c1 + ps.a2 * ps.b2 * ps.c2)
+    distance_primary = (ps.a1 + ps.a2) * ps.a2 * ps.b2 * ps.c2 / (ps.a1 * ps.b1 * ps.c1 + ps.a2 * ps.b2 * ps.c2)
+    distance_secondary = (ps.a1 + ps.a2) * ps.a1 * ps.b1 * ps.c1 / (ps.a1 * ps.b1 * ps.c1 + ps.a2 * ps.b2 * ps.c2)
     # create two components of the binary
-    primary = rf.EllipsoidR(ps.a1, ps.b1, ps.c1, -distance)
-    secondary = rf.EllipsoidR(ps.a2, ps.b2, ps.c2, distance)
+    primary = rf.EllipsoidR(ps.a1, ps.b1, ps.c1, -distance_primary)
+    secondary = rf.EllipsoidR(ps.a2, ps.b2, ps.c2, distance_secondary)
     primary.ecl_latitude = ps.ecl_latitude
     secondary.ecl_latitude = ps.ecl_latitude
     primary.ecl_longitude = ps.ecl_longitude
