@@ -55,7 +55,7 @@ def get_object_orbit(name: str, epochs: iter, location: str = '@10', refplane='e
 
     data_all = []
     # Query Horizons system
-    for epoch_chunk in _divide_chunks(epochs=epochs, n=80):
+    for epoch_chunk in _divide_chunks(epochs=epochs, n=50):
         obj = Horizons(id=_name_handler(name), location=location, epochs=epoch_chunk)
 
         if data_type == 'elements':
@@ -458,7 +458,8 @@ def visible(position: np.array, direction: np.array, ellips: Ellipsoid):
 
 def scattering_law(sun_vecs: np.ndarray,
                    earth_vecs: np.ndarray,
-                   norm_vecs: np.ndarray):
+                   norm_vecs: np.ndarray,
+                   scatt_coeff: float = 0.1):
     """Calculates the contribution into total brightness
     using Lambert cosine scattering law"""
     p1 = np.sum(sun_vecs * norm_vecs, axis=1)
@@ -466,9 +467,9 @@ def scattering_law(sun_vecs: np.ndarray,
     # return values where p1 and p2 are positive (and their product)
     # otherwise return 0
     # Lambert scattering law
-    #res = p1 * p2
+    # res = p1 * p2
     # Lommel-Seeliger Law
-    res = 0.1 * p1 * p2 + 1 * p1 * p2 / (p1 + p2)
+    res = scatt_coeff * p1 * p2 + 1 * p1 * p2 / (p1 + p2)
     res[(p1 < 0) | (p2 < 0)] = 0
     return res
 
@@ -514,7 +515,3 @@ def component_brightness(body: Body, sun_vecs_rot: pd.DataFrame,
         # add data for debugging
         vis_data.append([visible_comp1, visible_comp2, both_visible, scat_law])
     return bright_arr, vis_data
-
-
-
-
