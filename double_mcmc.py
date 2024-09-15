@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import argparse
 import math
 from multiprocessing import Pool
@@ -23,9 +24,9 @@ def run_mcmc(num_steps: int=1000, num_walkers=3, num_burnin:int=100,
     """wrapper for mcmc pipeline"""
     # read necessary lightcurve data
     lightcurve = LightCurve()  # container to store partial lightcurves
-    earth_data = ObsData()  # store earth vectors
-    sun_data = ObsData()  # store sun vectors
-    # load data
+    earth_data = ObsData()  # container to store earth vectors
+    sun_data = ObsData()  # container to store sun vectors
+    # load lightcurve data and position vectors
     lightcurve.load_data('input_data/lightcurve_data.csv')
     earth_data.load_data('input_data/state_vecs_earth.csv')
     sun_data.load_data('input_data/state_vecs_sun.csv')
@@ -33,29 +34,27 @@ def run_mcmc(num_steps: int=1000, num_walkers=3, num_burnin:int=100,
     lightcurve.calculate_shifts(earth_data)
     lightcurve.calculate_shifts(sun_data)
 
-    # read radar data
+    # read radar data and position vectors
     radar_image_params = rf.RadarImageParameters("radar_data/data.txt")
     radar_images_obs = [np.array(rf.read_observed_radar_image(radar_image_params, idx_img))
                         for idx_img in range(radar_image_params.N_points)]
-    # query_dates = [radar_image_params.jd[idx_img] + 2400000.5 for idx_img in range(len(radar_image_params.jd))]
-    # state_vecs_earth = func.get_object_orbit('2000 WO107', epochs=query_dates, location='@399', data_type='vectors')
-    # state_vecs_earth['r'] = np.sum(state_vecs_earth[['x', 'y', 'z']] ** 2, axis=1) ** 0.5
-    # position_vecs = (state_vecs_earth[['x', 'y', 'z']].T / state_vecs_earth['r']).T
     position_vecs = pd.read_csv('input_data/position_vecs.csv')
 
     # create initial guess for the parameters
     nwalkers = num_cores * num_walkers  # number of probe points
     coeff = 0.2
-    init_ps = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0.0]
-    init_params = np.array([init_ps[0] + coeff * np.random.randn(nwalkers),  # b1
-                            init_ps[1] + coeff * np.random.randn(nwalkers),  # c1
-                            init_ps[2] + coeff * np.random.randn(nwalkers),  # a2
-                            init_ps[3] + coeff * np.random.randn(nwalkers),  # b2
-                            init_ps[4] + coeff * np.random.randn(nwalkers),  # c2
+    init_ps = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    init_params = np.array([init_ps[0] + coeff * np.random.randn(nwalkers),  # a1
+                            init_ps[1] + coeff * np.random.randn(nwalkers),  # b1
+                            init_ps[2] + coeff * np.random.randn(nwalkers),  # c1
+                            init_ps[3] + coeff * np.random.randn(nwalkers),  # a2
+                            init_ps[4] + coeff * np.random.randn(nwalkers),  # b2
                             init_ps[5] + coeff * np.random.randn(nwalkers),  # c2
-                            0 + np.random.uniform(low=0, high=2 * math.pi, size=nwalkers),
-                            0 + np.random.uniform(low=-math.pi / 2, high=math.pi / 2, size=nwalkers),
-                            0 + np.random.uniform(low=0, high=2 * math.pi, size=nwalkers)]).T
+                            init_ps[6] + np.random.uniform(low=0, high=2 * math.pi, size=nwalkers),  # lon
+                            init_ps[7] + np.random.uniform(low=-math.pi / 2, high=math.pi / 2, size=nwalkers),  # lat
+                            init_ps[8] + np.random.uniform(low=0, high=2 * math.pi, size=nwalkers),  # init phase
+                            init_ps[9] + np.random.uniform(low=5.022/24 * 0.95, high=5.022 / 24 * 1.05, size=nwalkers), # rot_period
+                            init_ps[10] + np.random.uniform(low=500, high=3000, size=nwalkers)]).T  # radar_saturation
     ndim = np.size(init_params, axis=1)  # number of parameters
     init_params = init_params.astype(float)
 
@@ -80,6 +79,7 @@ def run_mcmc(num_steps: int=1000, num_walkers=3, num_burnin:int=100,
         # save samples
         file_pick = open(fname, 'wb')
         pickle.dump(sampler, file=file_pick)
+        exit(0)
 
     # save samples
     file_pick = open(out_path, 'wb')
@@ -88,6 +88,8 @@ def run_mcmc(num_steps: int=1000, num_walkers=3, num_burnin:int=100,
 
 
 if __name__ == "__main__":
+    # limit numpy operation to one thread
+    os.environ["OMP_NUM_THREADS"] = "1"
     parser = argparse.ArgumentParser(description='MCMC for binary asteroid')
     parser.add_argument('-n_samples', help='number of samples to run MCMC',
                         default=1000, type=int)
@@ -110,7 +112,7 @@ if __name__ == "__main__":
     if num_burnin >= num_samples:
         num_burnin = int(num_samples * 0.1)
         num_burnin = max(num_burnin, 10)
-        print("Error: number of burn-in samples must be less than number of samples")
+        print("Warning: number of burn-in samples must be less than number of samples")
         print(f"Setting number of burn-in samples to {num_burnin}")
 
     # run MCMC
