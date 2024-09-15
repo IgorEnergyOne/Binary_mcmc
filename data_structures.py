@@ -4,8 +4,11 @@ import numpy as np
 
 class ObsData:
     """class to store vectors corresponding to partial lightcurves"""
-    def __init__(self):
-        self._obs_data = []
+    def __init__(self, data=None):
+        if data is not None:
+            self._obs_data = data
+        else:
+            self._obs_data = []
         self._data_joined = None
 
     def __iadd__(self, other):
@@ -20,7 +23,10 @@ class ObsData:
         return f"ObsData (contains {self.__len__()} data blocks)"
 
     def __getitem__(self, index):
-        """returns the partial lightcurve at the given index"""
+        """returns the partial lightcurve at the given index or slice"""
+        if isinstance(index, slice):
+            return ObsData(self._obs_data[index])
+
         return self._obs_data[index]
 
     def __len__(self):
@@ -90,8 +96,11 @@ class PartialLightCurve:
 class LightCurve:
     """contains partial lightcurves and performs operations on them"""
 
-    def __init__(self):
-        self._lightcurves = []
+    def __init__(self, lightcurve_data=None):
+        if lightcurve_data is not None:
+            self._lightcurves = lightcurve_data
+        else:
+            self._lightcurves = []
         self._lightcurves_shifted = []
         self._lightcurves_joined = None
 
@@ -110,6 +119,12 @@ class LightCurve:
     def __len__(self):
         """returns the number of partial lightcurves"""
         return len(self._lightcurves)
+
+    def __getitem__(self, index):
+        """returns the partial lightcurve at the given index or slice"""
+        if isinstance(index, slice):
+            return LightCurve(self._lightcurves[index])
+        return self._lightcurves[index]
 
     def __repr__(self):
         return f"LightCurve (contains {self.__len__()} partial lightcurves)"
