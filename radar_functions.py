@@ -7,18 +7,18 @@ NU0 = 8560000000.
 C_MS = 299792458.
 
 class Parameters:
-    def __init__  (self, a1=1, b1=1, c1=1, a2=1, b2=1, c2=1, rot_per=5.022/24, l=0, b=0, phi0=0):
+    def __init__  (self, a1=1, b1=1, c1=1, a2=1, b2=1, c2=1, rot_per=5.022/24, l=0, b=0, init_phase=0, radar_sat=500):
         self.a1 = a1
         self.b1 = b1
         self.c1 = c1
         self.a2 = a2
         self.b2 = b2
         self.c2 = c2
-        self.P = rot_per  # rotational period [h]
+        self.rot_per = rot_per  # rotational period [h]
         self.ecl_longitude = l  # longitude of the pole
         self.ecl_latitude = b  # latitude of the pole
-        self.init_phase = phi0
-        self.radar_saturation = 500.
+        self.init_phase = init_phase
+        self.radar_saturation = radar_sat
         self.radar_background = 0.1
         self.radar_shift1 = 13
         self.radar_shift2 = 2
