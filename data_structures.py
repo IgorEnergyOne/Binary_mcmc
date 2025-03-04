@@ -69,16 +69,17 @@ class ObsData:
 class PartialLightCurve:
     """contains data for one part of a lightcurve"""
 
-    def __init__(self, lightcurve_data: pd.DataFrame):
+    def __init__(self, lightcurve_data: pd.DataFrame, fname=None):
         self.data = lightcurve_data
         self.data['weight'] = 1.0
         self.shift = 0
+        self.fname = fname
 
     def __len__(self):
         return len(self.data)
 
     def __repr__(self):
-        return (f"PartialLightCurve ({self.__len__()} points from {self.data['epoch'].min()} "
+        return (f"PartialLightCurve name:{self.fname} ({self.__len__()} points from {self.data['epoch'].min()} "
                 f"to {self.data['epoch'].max()}), shift = {self.shift:.2f}")
 
     def calculate_shift(self, other: np.ndarray):
@@ -131,10 +132,6 @@ class LightCurve:
 
     def __iter__(self):
         return iter(self._lightcurves)
-
-    def __getitem__(self, index):
-        """returns the partial lightcurve at the given index"""
-        return self._lightcurves[index]
 
     def sort_lightcurves(self):
         """sorts partial lightcurves by their epochs in ascending order"""
